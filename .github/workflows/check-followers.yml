@@ -1,0 +1,40 @@
+name: Check CHZZK Follower Count
+
+on:
+  schedule:
+    # 매 정각마다 실행 (UTC 기준이라 한국시간과 무관하게 매시 실행됨)
+    - cron: "0 * * * *"
+  workflow_dispatch: {}  # 수동 실행 버튼도 사용 가능
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 저장소 체크아웃
+        uses: actions/checkout@v4
+
+      - name: 파이썬 설정
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 의존성 설치
+        run: pip install -r requirements.txt
+
+      - name: 팔로워 수 확인 및 알림
+        env:
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          NOTIFY_EMAIL: ${{ secrets.NOTIFY_EMAIL }}
+        run: python check_followers.py
+
+      - name: 상태 파일 커밋
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add state.json
+          git diff --cached --quiet || git commit -m "상태 업데이트: 팔로워 수 확인"
+          git push
