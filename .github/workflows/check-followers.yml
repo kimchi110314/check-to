@@ -3,7 +3,7 @@ name: Check CHZZK Follower Count
 on:
   schedule:
     # 매 정각마다 실행 (UTC 기준이라 한국시간과 무관하게 매시 실행됨)
-    - cron: "0 * * * *"
+    - cron: "0,30 * * * *"
   workflow_dispatch: {}  # 수동 실행 버튼도 사용 가능
 
 permissions:
